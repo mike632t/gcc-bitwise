@@ -3,7 +3,9 @@
  *
  * Copyright(C) 2020 - MT
  *
- * ???.
+ * Demonstrates a number of integer math operations using bitwise operators
+ * which  makes  these algorithms suitable for use  on  processors  without
+ * 
  *
  * This  program is free software: you can redistribute it and/or modify it
  * under  the terms of the GNU General Public License as published  by  the
@@ -23,7 +25,7 @@
  *                     (with the calculation being done by passing unsigned
  *                     values  to the existing functions and modifying  the
  *                     sign of the result - MT
- *                   - Added  seperate type definitions for data structures
+ *                   - Added  separate type definitions for data structures
  *                     to handle functions with either one or two signed or
  *                     unsigned parameters - MT
  *
@@ -31,8 +33,8 @@
  */
 
 #define NAME         "bitwise"
-#define VERSION      "0.2"
-#define BUILD        "0001"
+#define VERSION      "0.3"
+#define BUILD        "0003"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -41,73 +43,22 @@
 #include <math.h>
 
 #define  DEBUG       0
-#define  LONG
+#define  SHORT
 
 #define  FALSE       0 
 #define  TRUE        !(FALSE)
 
 #ifdef   SHORT
-#define  LOWER      -32768
+#define  LOWER      -32768       /* Limit testing to 16-bit values */
 #define  UPPER       32767
 #else
 #define  LOWER       INT_MIN
 #define  UPPER       INT_MAX
 #endif
-#define  SAMPLES     3
+#define  SAMPLES     3           /* Number of values to test in each range */
 
-/* Evaluate minimum */
-#define min(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-      __typeof__ (b) _b = (b); \
-      _a < _b ? _a : _b; })
 
-/* Evaluate maximum */
-#define max(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-      __typeof__ (b) _b = (b); \
-      _a > _b ? _a : _b; })
-
-/* Execute code if DEBUG is True */
-#ifndef debug /* Don't redefine macro if already defined. */
-#define debug(code) do {if(DEBUG){code;}} while(0)
-#endif
-
-/* Print a debug message to stderr if DEBUG is True */
-#ifndef print /* Don't redefine macro if already defined. */
-   #define print(_fmt, ...) do { \
-      if(DEBUG){ \
-         fprintf(stderr,   "Debug\t: %s line : %d (%s) : " _fmt "\n", \
-            __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
-      } \
-   } while(0)
-#endif
-
-/* Print a warning message to stderr */
-#ifndef warning /* Don't redefine macro if already defined. */
-   #define warning(_fmt, ...) do { \
-      if(DEBUG){ \
-         fprintf(stderr,   "Warning\t: %s line : %d (%s) : " _fmt "\n", \
-            __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
-      } else { \
-         fprintf(stderr,   "%s: " _fmt "\n", \
-            NAME, ##__VA_ARGS__); \
-      } \
-   } while(0)
-#endif
-
-/* Print an error message stderr and exit */
-#ifndef error /* Don't redefine macro if already defined. */
-   #define error(_fmt, ...) do { \
-      if(DEBUG){ \
-         fprintf(stderr,   "Error\t: %s line : %d (%s) : " _fmt "\n", \
-            __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
-      } else { \
-         fprintf(stderr,   "%s: " _fmt "\n", \
-            NAME, ##__VA_ARGS__); \
-      } \
-      exit(1); \
-   } while(0)
-#endif
+/* Count number of bits in a byte using bitwise operations */
 
 char cbits(n) char n; /* Count number of bits in a byte */
 {
@@ -117,7 +68,10 @@ char cbits(n) char n; /* Count number of bits in a byte */
    return (n & 0x07);
 }
 
-unsigned ubits(n) unsigned n; /* Count number of bits in a word (32-bit) */
+
+/* Count number of bits in a word using bitwise operations */
+
+unsigned ubits(n) unsigned n; 
 {
    /* https://stackoverflow.com/questions/109023/ */
    n = n - ((n >> 1) & 0x55555555);
@@ -128,7 +82,10 @@ unsigned ubits(n) unsigned n; /* Count number of bits in a word (32-bit) */
    return (n & 0x00000003F);
 }
 
-unsigned _ubits(n) unsigned n; /* Count number of bits in a word */
+
+/* Count number of bits in a word using a loop for testing */
+
+unsigned _ubits(n) unsigned n; 
 {
    int r;
    r = 0;
@@ -141,11 +98,11 @@ unsigned _ubits(n) unsigned n; /* Count number of bits in a word */
 }
 
 
-/* Two's compliment */
+/* Unsigned Two's compliment */
 
 unsigned uneg(n) unsigned n;
 {
-   return (~n + 1); /* Two's compiiment */
+   return (~n + 1);
 }
 
 unsigned _uneg(n) unsigned n; 
@@ -154,9 +111,9 @@ unsigned _uneg(n) unsigned n;
 }
 
 
-/* Absolute value */
+ /* Signed absolute value */
 
-int iabs(n) int n; /* Signed absolute value */
+int iabs(n) int n;
 {
    if (n < 0)
       return (uneg((unsigned)(n)));
@@ -164,25 +121,34 @@ int iabs(n) int n; /* Signed absolute value */
       return (n);
 }
 
-int _iabs(n) int n; /* Signed absolute value */
+
+/* Signed absolute value */
+
+int _iabs(n) int n;
 {
    return (abs(n));
 }
 
 
-/* Multiply by 10 */
+/* Unsigned fast integer multiply by 10 using bitwise operations */
 
-unsigned umult10(n) unsigned n; /* Unsigned fast integer multiply by 10 */
+unsigned umult10(n) unsigned n; 
 {
     return (n << 3) + (n << 1); /* n = n * 8 + n * 2 */
 }
 
-unsigned _umult10(n) unsigned n; /* Unsigned integer multiply by 10 */
+
+/* Unsigned integer multiply by 10 */
+
+unsigned _umult10(n) unsigned n; 
 {
    return (n * 10);
 }
 
-int imult10(n) int n; /* Signed fast integer multiply by 10 */
+
+/* Signed fast integer multiply by 10 using bitwise operations */
+
+int imult10(n) int n; 
 {
    if (n < 0)
       return (uneg(umult10(uneg((unsigned)(n)))));
@@ -190,15 +156,18 @@ int imult10(n) int n; /* Signed fast integer multiply by 10 */
       return (umult10(n));
 }
 
-int _imult10(n) int n; /* Signed integer multiply by 10 */
+
+/* Signed integer multiply by 10 */
+
+int _imult10(n) int n; 
 {
    return (n * 10);
 }
 
 
-/* Divide by 3 */
+/* Unsigned fast integer division by 3 using bitwise operations */
 
-unsigned udiv3(n) unsigned n; /* Unsigned fast integer division by 3 (32 or 16 bits) */
+unsigned udiv3(n) unsigned n;
 {
    int r;
    r  = 0;
@@ -210,12 +179,18 @@ unsigned udiv3(n) unsigned n; /* Unsigned fast integer division by 3 (32 or 16 b
    return r; 
 }
 
-unsigned _udiv3(n) unsigned n; /* Unsigned integer square root (16-bit only) */
+
+/* Normal unsigned division by 3 */
+
+unsigned _udiv3(n) unsigned n;
 {
    return (n / 3);
 }
 
-int idiv3(n) int n; /* Signed fast integer division by 3 */
+
+/* Signed fast integer division by 3 using bitwise operations */
+
+int idiv3(n) int n;
 {
    if (n < 0)
       return (uneg(udiv3(uneg((unsigned)(n)))));
@@ -223,33 +198,42 @@ int idiv3(n) int n; /* Signed fast integer division by 3 */
       return (udiv3(n));
 }
 
-int _idiv3(n) int n; /* Unsigned integer square root (16-bit only) */
+
+/* Normal signed division by 3 */
+
+int _idiv3(n) int n; 
 {
    return (n / 3);
 }
 
 
-/* Divide by 10 */
+/* Unsigned fast integer division by 10 using bitwise operations */
 
-unsigned udiv10(n) unsigned n; /* Unsigned fast integer division by 10 (32 or 16 bits) */
+unsigned udiv10(n) unsigned n; 
 {
    /* https://stackoverflow.com/questions/5558492/ */   
    unsigned q, r;
    q = (n >> 1) + (n >> 2);
    q = q + (q >> 4);
    q = q + (q >> 8);
-   q = q + (q >> 16); /* Not required for 16 bits */
+   q = q + (q >> 16); /* Not required for 16 bits values*/
    q = q >> 3;
    r = n - (((q << 2) + q) << 1);
    return (q + (r > 9));
 }
 
-unsigned _udiv10(n) unsigned n; /* Unsigned integer square root (16-bit only) */
+
+/* Normal unsigned division */
+
+unsigned _udiv10(n) unsigned n; 
 {
    return (n / 10);
 }
 
-int idiv10(n) int n; /* Signed fast integer division by 3 */
+
+/* Signed fast integer division by 10 using bitwise operations */
+
+int idiv10(n) int n; 
 {
    unsigned m;
    if (n < 0)
@@ -259,16 +243,20 @@ int idiv10(n) int n; /* Signed fast integer division by 3 */
    return m; 
 }
 
-int _idiv10(n) int n; /* Unsigned integer square root (16-bit only) */
+
+/* Normal signed division */
+
+int _idiv10(n) int n; 
 {
    return (n / 10);
 }
 
 
-/* Square root */
+/* Signed integer square root using bitwise operations (16-bit only) */
 
-int isqrt(n) int n; /* Unsigned integer square root (16-bit only) */
+int isqrt(n) int n; 
 {
+
    int p, q, r;
    p = n;
    r = 0; q = 0x4000;
@@ -292,7 +280,10 @@ int isqrt(n) int n; /* Unsigned integer square root (16-bit only) */
    return r;
 }
 
-int _isqrt(n) int n; /* Unsigned integer square root (16-bit only) */
+
+/* Normal signed integer square root */
+
+int _isqrt(n) int n; 
 {
    int r;
    if (n >= 0)  /* Check for negative n */
@@ -303,9 +294,9 @@ int _isqrt(n) int n; /* Unsigned integer square root (16-bit only) */
 }
 
 
-/* Log */
+/* Signed signed integer logarithm (base10) using bitwise division */
 
-int ilog10(n) int n; /* Unsigned integer square root (16-bit only) */
+int ilog10(n) int n; 
 {
    unsigned r;
    r = -1;
@@ -320,7 +311,10 @@ int ilog10(n) int n; /* Unsigned integer square root (16-bit only) */
    return r;
 }
 
-int _ilog10(n) int n; /* Unsigned integer square root (16-bit only) */
+
+/* Normal signed integer logarithm (base10) */
+
+int _ilog10(n) int n; 
 {
    int r;
    r = -1;
@@ -330,9 +324,9 @@ int _ilog10(n) int n; /* Unsigned integer square root (16-bit only) */
 }
 
 
-/* Multiply by n */
+/* Unsigned integer multiplication using bitwise operations */
 
-unsigned umult(m, n) unsigned m, n; /* Unsigned integer multiplycation */
+unsigned umult(m, n) unsigned m, n; 
 {
    unsigned r;
    r = 0;
@@ -345,12 +339,18 @@ unsigned umult(m, n) unsigned m, n; /* Unsigned integer multiplycation */
    return r;
 }
 
-unsigned _umult(m, n) unsigned m, n; /* Unsigned integer multiplycation */
+
+ /* Normal unsigned integer multiplication */
+ 
+unsigned _umult(m, n) unsigned m, n;
 {
    return (m * n);
 }
 
-int imult(m, n) int m, n; /* Signed integer multiplycation */
+
+/* Signed integer multiplication using bitwise operations */
+
+int imult(m, n) int m, n;
 {
    unsigned o;
    if (n < 0)
@@ -360,15 +360,18 @@ int imult(m, n) int m, n; /* Signed integer multiplycation */
     
 }
 
-int _imult(m, n) int m, n; /* Unsigned integer multiplycation */
+
+/* Normal signed integer multiplication */
+
+int _imult(m, n) int m, n; 
 {
    return (m * n);
 }
 
 
-/* Divide by n */
+/* Unsigned integer division using bitwise operations */
 
-unsigned udiv(m, n) unsigned m, n; /* Unsigned integer division */
+unsigned udiv(m, n) unsigned m, n;
 {
    /* https://stackoverflow.com/questions/12697523/ */
    int i, p, q, r;
@@ -393,12 +396,18 @@ unsigned udiv(m, n) unsigned m, n; /* Unsigned integer division */
    return q;
 }
 
-unsigned _udiv(m, n) unsigned m, n; /* Unsigned integer division */
+
+/* Normal unsigned integer division */
+
+unsigned _udiv(m, n) unsigned m, n;
 {
    return (m / n);
 }
 
-int idiv(m, n) int m, n; /* Signed integer division */
+
+/* Signed integer division using bitwise operations */
+
+int idiv(m, n) int m, n; 
 {
    unsigned o, p;
    if (m < 0)
@@ -408,10 +417,33 @@ int idiv(m, n) int m, n; /* Signed integer division */
    return m; 
 }
 
-int _idiv(m, n) int m, n; /* Signed integer division*/
+
+/* Normal signed integer division */
+
+int _idiv(m, n) int m, n; 
 {
    return (m / n);
 }
+
+/* The rest of the program is used to check that the results of the bitwise 
+   operations  are correct (by comparing the results of a range  of  values
+   around zero as well as he specified maximum and minimum values). */
+
+
+/* Evaluate minimum */
+
+#define min(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+      __typeof__ (b) _b = (b); \
+      _a < _b ? _a : _b; })
+
+
+/* Evaluate maximum */
+
+#define max(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+      __typeof__ (b) _b = (b); \
+      _a > _b ? _a : _b; })
 
 
 int main()
@@ -532,6 +564,7 @@ int main()
       return r;
    }
 
+
    /* Test an unsigned unary function */
 
    void test_unsigned_unary(test) struct unsigned_unary test; 
@@ -555,6 +588,7 @@ int main()
          printf("%7s()%s", test.c, failed);
       if (DEBUG) printf("\n");
    }   
+
 
    /* Test a signed unary function */
 
@@ -580,6 +614,7 @@ int main()
       if (DEBUG) printf("\n");
    }   
 
+
    /* Test an unsigned binary function */
 
    void test_unsigned_binary(test, j) struct unsigned_binary test;  int j; 
@@ -603,6 +638,7 @@ int main()
          printf("%7s()%s", test.c, failed);
       if (DEBUG) printf("\n");
    }   
+
 
    /* Test a signed binary function */
 
