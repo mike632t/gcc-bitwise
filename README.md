@@ -5,7 +5,3 @@ Written in C.
 Demonstrates  how to use bitwise operations to perform vairious  arithmetic 
 operations.
 
-## To Do
-
-* Add BCD Floating point ?
-
